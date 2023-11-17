@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: black;
+        }
+        #clicker, #upgrade, #autoClick, #autoClickSpeed, #closeUpgrade, #closeChangelog {
+            border-radius: 50%;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.1s;
+        }
+        #clicker:active, #upgrade:active, #autoClick:active, #autoClickSpeed:active, #closeUpgrade:active, #closeChangelog:active {
+            transform: scale(0.9);
+        }
+        #upgradeScreen, #changelogScreen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+    <div id="counter">0</div>
+    <button id="clicker">Click me!</button>
+    <button id="upgrade">Upgrade</button>
+    <button id="changelog">Changelog</button>
+    <div id="upgradeScreen">
+        <button id="autoClick">Auto Click (5K)</button>
+        <button id="autoClickSpeed">Auto Click Speed (8K)</button>
+        <button id="closeUpgrade">Close</button>
+    </div>
+    <div id="changelogScreen">
+        <div id="changelogText">Changelog: Version 1.0 - Initial release</div>
+        <button id="closeChangelog">Close</button>
+    </div>
+
+    <script>
+        let counter = localStorage.getItem('counter') ? parseInt(localStorage.getItem('counter')) : 0;
+        let clickValue = localStorage.getItem('clickValue') ? parseInt(localStorage.getItem('clickValue')) : 1;
+        let autoClickUnlocked = localStorage.getItem('autoClickUnlocked') ? localStorage.getItem('autoClickUnlocked') === 'true' : false;
+        let autoClickSpeed = localStorage.getItem('autoClickSpeed') ? parseInt(localStorage.getItem('autoClickSpeed')) : 1000;
+
+        document.getElementById('counter').innerText = counter;
+        document.getElementById('autoClick').innerText = autoClickUnlocked ? 'Auto Click Unlocked' : 'Auto Click (5K)';
+        document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + autoClickSpeed + ')';
+
+        document.getElementById('clicker').addEventListener('click', function() {
+            counter += clickValue;
+            localStorage.setItem('counter', counter);
+            document.getElementById('counter').innerText = counter;
+        });
+
+        document.getElementById('upgrade').addEventListener('click', function() {
+            document.getElementById('upgradeScreen').style.display = 'flex';
+        });
+
+        document.getElementById('changelog').addEventListener('click', function() {
+            document.getElementById('changelogScreen').style.display = 'flex';
+        });
+
+        document.getElementById('autoClick').addEventListener('click', function() {
+            if (!autoClickUnlocked && counter >= 5000) {
+                counter -= 5000;
+                autoClickUnlocked = true;
+                localStorage.setItem('counter', counter);
+                localStorage.setItem('autoClickUnlocked', autoClickUnlocked);
+                document.getElementById('counter').innerText = counter;
+                document.getElementById('autoClick').innerText = 'Auto Click Unlocked';
+                setInterval(function() {
+                    counter += clickValue;
+                    localStorage.setItem('counter', counter);
+                    document.getElementById('counter').innerText = counter;
+                }, autoClickSpeed);
+            }
+        });
+
+        document.getElementById('autoClickSpeed').addEventListener('click', function() {
+            if (autoClickUnlocked && counter >= 8000) {
+                counter -= 8000;
+                autoClickSpeed /= 2;
+                localStorage.setItem('counter', counter);
+                localStorage.setItem('autoClickSpeed', autoClickSpeed);
+                document.getElementById('counter').innerText = counter;
+                document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + autoClickSpeed + ')';
+            }
+        });
+
+        document.getElementById('closeUpgrade').addEventListener('click', function() {
+            document.getElementById('upgradeScreen').style.display = 'none';
+        });
+
+        document.getElementById('closeChangelog').addEventListener('click', function() {
+            document.getElementById('changelogScreen').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
