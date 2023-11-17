@@ -8,8 +8,9 @@
             align-items: center;
             height: 100vh;
             background: black;
+            color: white;
         }
-        #clicker, #upgrade, #autoClick, #autoClickSpeed, #closeUpgrade, #closeChangelog {
+        #clicker, #upgrade, #autoClick, #autoClickSpeed, #closeUpgrade, #closeChangelog, #clickUpgrade {
             border-radius: 50%;
             padding: 20px;
             text-align: center;
@@ -17,7 +18,7 @@
             margin: 10px;
             transition: transform 0.1s;
         }
-        #clicker:active, #upgrade:active, #autoClick:active, #autoClickSpeed:active, #closeUpgrade:active, #closeChangelog:active {
+        #clicker:active, #upgrade:active, #autoClick:active, #autoClickSpeed:active, #closeUpgrade:active, #closeChangelog:active, #clickUpgrade:active {
             transform: scale(0.9);
         }
         #upgradeScreen, #changelogScreen {
@@ -43,6 +44,7 @@
     <div id="upgradeScreen">
         <button id="autoClick">Auto Click (5K)</button>
         <button id="autoClickSpeed">Auto Click Speed (8K)</button>
+        <button id="clickUpgrade">Click Upgrade (1K)</button>
         <button id="closeUpgrade">Close</button>
     </div>
     <div id="changelogScreen">
@@ -59,6 +61,7 @@
         document.getElementById('counter').innerText = counter;
         document.getElementById('autoClick').innerText = autoClickUnlocked ? 'Auto Click Unlocked' : 'Auto Click (5K)';
         document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + autoClickSpeed + ')';
+        document.getElementById('clickUpgrade').innerText = 'Click Upgrade (1K)';
 
         document.getElementById('clicker').addEventListener('click', function() {
             counter += clickValue;
@@ -98,6 +101,17 @@
                 localStorage.setItem('autoClickSpeed', autoClickSpeed);
                 document.getElementById('counter').innerText = counter;
                 document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + autoClickSpeed + ')';
+            }
+        });
+
+        document.getElementById('clickUpgrade').addEventListener('click', function() {
+            if (counter >= 1000) {
+                counter -= 1000;
+                clickValue *= 2;
+                localStorage.setItem('counter', counter);
+                localStorage.setItem('clickValue', clickValue);
+                document.getElementById('counter').innerText = counter;
+                document.getElementById('clickUpgrade').innerText = 'Click Upgrade (' + (clickValue * 1000) + ')';
             }
         });
 
