@@ -10,7 +10,7 @@
             background: black;
             color: white;
         }
-        #clicker, #upgrade, #autoClick, #autoClickSpeed, #closeUpgrade, #closeChangelog, #clickUpgrade {
+        #clicker, #upgrade, #autoClick, #autoClickSpeed, #closeUpgrade, #closeChangelog, #clickUpgrade, #toggleAutoClick {
             border-radius: 50%;
             padding: 20px;
             text-align: center;
@@ -18,7 +18,7 @@
             margin: 10px;
             transition: transform 0.1s;
         }
-        #clicker:active, #upgrade:active, #autoClick:active, #autoClickSpeed:active, #closeUpgrade:active, #closeChangelog:active, #clickUpgrade:active {
+        #clicker:active, #upgrade:active, #autoClick:active, #autoClickSpeed:active, #closeUpgrade:active, #closeChangelog:active, #clickUpgrade:active, #toggleAutoClick:active {
             transform: scale(0.9);
         }
         #upgradeScreen, #changelogScreen {
@@ -34,6 +34,9 @@
             align-items: center;
             transition: opacity 0.5s;
         }
+        #toggleAutoClick {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -41,6 +44,7 @@
     <button id="clicker">Click me!</button>
     <button id="upgrade">Upgrade</button>
     <button id="changelog">Changelog</button>
+    <button id="toggleAutoClick">Toggle Auto Click</button>
     <div id="upgradeScreen">
         <button id="autoClick">Auto Click (5K)</button>
         <button id="autoClickSpeed">Auto Click Speed (8K)</button>
@@ -57,16 +61,27 @@
         let clickValue = localStorage.getItem('clickValue') ? parseInt(localStorage.getItem('clickValue')) : 1;
         let autoClickUnlocked = localStorage.getItem('autoClickUnlocked') ? localStorage.getItem('autoClickUnlocked') === 'true' : false;
         let autoClickSpeed = localStorage.getItem('autoClickSpeed') ? parseInt(localStorage.getItem('autoClickSpeed')) : 1000;
+        let autoClickInterval;
 
-        document.getElementById('counter').innerText = counter;
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            } else {
+                return num;
+            }
+        }
+
+        document.getElementById('counter').innerText = formatNumber(counter);
         document.getElementById('autoClick').innerText = autoClickUnlocked ? 'Auto Click Unlocked' : 'Auto Click (5K)';
-        document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + autoClickSpeed + ')';
-        document.getElementById('clickUpgrade').innerText = 'Click Upgrade (1K)';
+        document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + formatNumber(autoClickSpeed) + ')';
+        document.getElementById('clickUpgrade').innerText = 'Click Upgrade (' + formatNumber(clickValue * 1000) + ')';
 
         document.getElementById('clicker').addEventListener('click', function() {
             counter += clickValue;
             localStorage.setItem('counter', counter);
-            document.getElementById('counter').innerText = counter;
+            document.getElementById('counter').innerText = formatNumber(counter);
         });
 
         document.getElementById('upgrade').addEventListener('click', function() {
@@ -83,12 +98,13 @@
                 autoClickUnlocked = true;
                 localStorage.setItem('counter', counter);
                 localStorage.setItem('autoClickUnlocked', autoClickUnlocked);
-                document.getElementById('counter').innerText = counter;
+                document.getElementById('counter').innerText = formatNumber(counter);
                 document.getElementById('autoClick').innerText = 'Auto Click Unlocked';
-                setInterval(function() {
+                document.getElementById('toggleAutoClick').style.display = 'block';
+                autoClickInterval = setInterval(function() {
                     counter += clickValue;
                     localStorage.setItem('counter', counter);
-                    document.getElementById('counter').innerText = counter;
+                    document.getElementById('counter').innerText = formatNumber(counter);
                 }, autoClickSpeed);
             }
         });
@@ -99,19 +115,25 @@
                 autoClickSpeed /= 2;
                 localStorage.setItem('counter', counter);
                 localStorage.setItem('autoClickSpeed', autoClickSpeed);
-                document.getElementById('counter').innerText = counter;
-                document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + autoClickSpeed + ')';
+                document.getElementById('counter').innerText = formatNumber(counter);
+                document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + formatNumber(autoClickSpeed) + ')';
+                clearInterval(autoClickInterval);
+                autoClickInterval = setInterval(function() {
+                    counter += clickValue;
+                    localStorage.setItem('counter', counter);
+                    document.getElementById('counter').innerText = formatNumber(counter);
+                }, autoClickSpeed);
             }
         });
 
         document.getElementById('clickUpgrade').addEventListener('click', function() {
-            if (counter >= 1000) {
-                counter -= 1000;
+            if (counter >= clickValue * 1000) {
+                counter -= clickValue * 1000;
                 clickValue *= 2;
                 localStorage.setItem('counter', counter);
                 localStorage.setItem('clickValue', clickValue);
-                document.getElementById('counter').innerText = counter;
-                document.getElementById('clickUpgrade').innerText = 'Click Upgrade (' + (clickValue * 1000) + ')';
+                document.getElementById('counter').innerText = formatNumber(counter);
+                document.getElementById('clickUpgrade').innerText = 'Click Upgrade (' + formatNumber(clickValue * 1000) + ')';
             }
         });
 
@@ -121,6 +143,21 @@
 
         document.getElementById('closeChangelog').addEventListener('click', function() {
             document.getElementById('changelogScreen').style.display = 'none';
+        });
+
+        document.getElementById('toggleAutoClick').addEventListener('click', function() {
+            if (autoClickInterval) {
+                clearInterval(autoClickInterval);
+                autoClickInterval = null;
+                document.getElementById('toggleAutoClick').innerText = 'Start Auto Click';
+            } else {
+                autoClickInterval = setInterval(function() {
+                    counter += clickValue;
+                    localStorage.setItem('counter', counter);
+                    document.getElementById('counter').innerText = formatNumber(counter);
+                }, autoClickSpeed);
+                document.getElementById('toggleAutoClick').innerText = 'Stop Auto Click';
+            }
         });
     </script>
 </body>
