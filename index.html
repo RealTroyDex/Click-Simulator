@@ -34,7 +34,7 @@
             align-items: center;
             transition: opacity 0.5s;
         }
-        #toggleAutoClick {
+        #toggleAutoClick, #autoClickStatus {
             display: none;
         }
     </style>
@@ -45,9 +45,10 @@
     <button id="upgrade">Upgrade</button>
     <button id="changelog">Changelog</button>
     <button id="toggleAutoClick">Toggle Auto Click</button>
+    <div id="autoClickStatus">AutoClick: Off</div>
     <div id="upgradeScreen">
         <button id="autoClick">Auto Click (5K)</button>
-        <button id="autoClickSpeed">Auto Click Speed (8K)</button>
+        <button id="autoClickSpeed">Auto Click Speed (1K)</button>
         <button id="clickUpgrade">Click Upgrade (1K)</button>
         <button id="closeUpgrade">Close</button>
     </div>
@@ -78,6 +79,7 @@
         document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + formatNumber(autoClickSpeed) + ')';
         document.getElementById('clickUpgrade').innerText = 'Click Upgrade (' + formatNumber(clickValue * 1000) + ')';
         document.getElementById('toggleAutoClick').style.display = autoClickUnlocked ? 'block' : 'none';
+        document.getElementById('autoClickStatus').style.display = autoClickUnlocked ? 'block' : 'none';
 
         document.getElementById('clicker').addEventListener('click', function() {
             counter += clickValue;
@@ -102,6 +104,7 @@
                 document.getElementById('counter').innerText = formatNumber(counter);
                 document.getElementById('autoClick').innerText = 'Auto Click Unlocked';
                 document.getElementById('toggleAutoClick').style.display = 'block';
+                document.getElementById('autoClickStatus').style.display = 'block';
                 autoClickInterval = setInterval(function() {
                     counter += clickValue;
                     localStorage.setItem('counter', counter);
@@ -111,19 +114,21 @@
         });
 
         document.getElementById('autoClickSpeed').addEventListener('click', function() {
-            if (autoClickUnlocked && counter >= 8000) {
-                counter -= 8000;
-                autoClickSpeed /= 2;
+            if (autoClickUnlocked && counter >= 1000) {
+                counter -= 1000;
+                autoClickSpeed = Math.max(autoClickSpeed - 100, 0);
                 localStorage.setItem('counter', counter);
                 localStorage.setItem('autoClickSpeed', autoClickSpeed);
                 document.getElementById('counter').innerText = formatNumber(counter);
                 document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + formatNumber(autoClickSpeed) + ')';
                 clearInterval(autoClickInterval);
-                autoClickInterval = setInterval(function() {
-                    counter += clickValue;
-                    localStorage.setItem('counter', counter);
-                    document.getElementById('counter').innerText = formatNumber(counter);
-                }, autoClickSpeed);
+                if (autoClickSpeed > 0) {
+                    autoClickInterval = setInterval(function() {
+                        counter += clickValue;
+                        localStorage.setItem('counter', counter);
+                        document.getElementById('counter').innerText = formatNumber(counter);
+                    }, autoClickSpeed);
+                }
             }
         });
 
@@ -151,6 +156,7 @@
                 clearInterval(autoClickInterval);
                 autoClickInterval = null;
                 document.getElementById('toggleAutoClick').innerText = 'Start Auto Click';
+                document.getElementById('autoClickStatus').innerText = 'AutoClick: Off';
             } else {
                 autoClickInterval = setInterval(function() {
                     counter += clickValue;
@@ -158,6 +164,7 @@
                     document.getElementById('counter').innerText = formatNumber(counter);
                 }, autoClickSpeed);
                 document.getElementById('toggleAutoClick').innerText = 'Stop Auto Click';
+                document.getElementById('autoClickStatus').innerText = 'AutoClick: On';
             }
         });
     </script>
