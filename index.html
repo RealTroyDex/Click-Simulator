@@ -77,6 +77,7 @@
         document.getElementById('autoClick').innerText = autoClickUnlocked ? 'Auto Click Unlocked' : 'Auto Click (5K)';
         document.getElementById('autoClickSpeed').innerText = 'Auto Click Speed (' + formatNumber(autoClickSpeed) + ')';
         document.getElementById('clickUpgrade').innerText = 'Click Upgrade (' + formatNumber(clickValue * 1000) + ')';
+        document.getElementById('toggleAutoClick').style.display = autoClickUnlocked ? 'block' : 'none';
 
         document.getElementById('clicker').addEventListener('click', function() {
             counter += clickValue;
